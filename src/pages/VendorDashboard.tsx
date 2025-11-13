@@ -39,6 +39,24 @@ const VendorDashboard = () => {
   }, [user, userRole, authLoading, navigate]);
 
   useEffect(() => {
+    const checkCanteenRegistration = async () => {
+      if (user && userRole === "vendor") {
+        const { data } = await supabase
+          .from("canteens")
+          .select("id")
+          .eq("vendor_id", user.id)
+          .maybeSingle();
+        
+        if (!data) {
+          navigate("/vendor/register");
+        }
+      }
+    };
+    
+    checkCanteenRegistration();
+  }, [user, userRole, navigate]);
+
+  useEffect(() => {
     if (user && userRole === "vendor") {
       fetchCanteenAndOrders();
       subscribeToOrders();
