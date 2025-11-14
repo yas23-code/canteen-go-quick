@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ const VendorDashboard = () => {
   const [canteen, setCanteen] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const justRegistered = location.state?.justRegistered;
 
   useEffect(() => {
     if (!authLoading && (!user || userRole !== "vendor")) {
@@ -40,6 +42,11 @@ const VendorDashboard = () => {
 
   useEffect(() => {
     const checkCanteenRegistration = async () => {
+      // Skip check if just registered
+      if (justRegistered) {
+        return;
+      }
+      
       if (user && userRole === "vendor") {
         const { data } = await supabase
           .from("canteens")
@@ -54,7 +61,7 @@ const VendorDashboard = () => {
     };
     
     checkCanteenRegistration();
-  }, [user, userRole, navigate]);
+  }, [user, userRole, navigate, justRegistered]);
 
   useEffect(() => {
     if (user && userRole === "vendor") {

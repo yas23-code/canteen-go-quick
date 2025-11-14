@@ -103,7 +103,7 @@ const VendorRegistration = () => {
       if (menuError) throw menuError;
 
       toast.success("Canteen registered successfully!");
-      navigate("/vendor");
+      navigate("/vendor", { state: { justRegistered: true } });
     } catch (error: any) {
       console.error("Registration error:", error);
       toast.error(error.message || "Failed to register canteen");
