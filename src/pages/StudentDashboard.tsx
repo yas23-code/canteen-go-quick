@@ -140,10 +140,15 @@ const StudentDashboard = () => {
         {/* Orders Section */}
         {orders.length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <ShoppingBag className="h-6 w-6 text-primary" />
-              Your Orders
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <ShoppingBag className="h-6 w-6 text-primary" />
+                Your Orders
+              </h2>
+              <Button variant="outline" onClick={() => navigate("/student/orders")}>
+                View All Orders
+              </Button>
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {orders.map((order) => (
                 <Card key={order.id} className="hover:shadow-lg transition-shadow">
