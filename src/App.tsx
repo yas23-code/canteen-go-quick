@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StudentDashboard from "./pages/StudentDashboard";
 import CanteenMenu from "./pages/CanteenMenu";
+import OrderHistory from "./pages/OrderHistory";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorRegistration from "./pages/VendorRegistration";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/canteen/:id" element={<CanteenMenu />} />
+          <Route path="/student/orders" element={<OrderHistory />} />
           <Route path="/vendor" element={<VendorDashboard />} />
           <Route path="/vendor/register" element={<VendorRegistration />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
