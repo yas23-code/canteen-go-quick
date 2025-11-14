@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +15,7 @@ type MenuItem = {
 };
 
 const VendorRegistration = () => {
-  const { user } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [canteenName, setCanteenName] = useState("");
   const [canteenLocation, setCanteenLocation] = useState("");
@@ -23,6 +23,17 @@ const VendorRegistration = () => {
     { name: "", price: "" },
   ]);
   const [loading, setLoading] = useState(false);
+
+  // Redirect non-vendors to appropriate pages
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        navigate("/auth");
+      } else if (userRole === "student") {
+        navigate("/student");
+      }
+    }
+  }, [user, userRole, authLoading, navigate]);
 
   const addMenuItem = () => {
     setMenuItems([...menuItems, { name: "", price: "" }]);
