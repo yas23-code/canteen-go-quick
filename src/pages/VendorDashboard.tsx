@@ -71,6 +71,7 @@ const VendorDashboard = () => {
         .from("canteens")
         .select("*")
         .eq("vendor_id", user.id)
+        .limit(1)
         .single();
 
       if (canteenError) throw canteenError;
