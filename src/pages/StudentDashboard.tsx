@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UtensilsCrossed, MapPin, LogOut, ShoppingBag, Clock, CheckCircle2 } from "lucide-react";
+import { UtensilsCrossed, MapPin, LogOut, ShoppingBag, Clock, CheckCircle2, Bell, BellOff, History } from "lucide-react";
 import { toast } from "sonner";
+import { requestNotificationPermission, showOrderReadyNotification } from "@/utils/notifications";
 
 type Canteen = {
   id: string;
@@ -31,6 +32,7 @@ const StudentDashboard = () => {
   const [canteens, setCanteens] = useState<Canteen[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,10 +42,17 @@ const StudentDashboard = () => {
   }, [user, userRole, authLoading, navigate]);
 
   useEffect(() => {
+    // Check notification permission status
+    if ("Notification" in window) {
+      setNotificationsEnabled(Notification.permission === "granted");
+    }
+  }, []);
+
+  useEffect(() => {
     if (user && userRole === "student") {
       fetchCanteens();
       fetchOrders();
-      subscribeToOrders();
+      subscribeToOrderUpdates();
     }
   }, [user, userRole]);
 
@@ -61,6 +70,69 @@ const StudentDashboard = () => {
       toast.error("Failed to load canteens");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const subscribeToOrderUpdates = () => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("student-order-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
+          filter: `student_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          console.log("Order update:", payload);
+          
+          const newOrder = payload.new as any;
+          const oldOrder = payload.old as any;
+          
+          // Check if order just became ready
+          if (oldOrder.status === "pending" && newOrder.status === "ready") {
+            // Fetch canteen details for the notification
+            const { data: canteenData } = await supabase
+              .from("canteens")
+              .select("name")
+              .eq("id", newOrder.canteen_id)
+              .single();
+            
+            if (notificationsEnabled && canteenData) {
+              showOrderReadyNotification({
+                canteenName: canteenData.name,
+                totalAmount: newOrder.total_amount,
+              });
+            }
+            
+            toast.success("Your order is ready for pickup!");
+            fetchOrders();
+          } else if (newOrder.status !== oldOrder.status) {
+            fetchOrders();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const handleNotificationToggle = async () => {
+    if (!notificationsEnabled) {
+      const granted = await requestNotificationPermission();
+      setNotificationsEnabled(granted);
+      if (granted) {
+        toast.success("Notifications enabled! You'll be notified when your orders are ready.");
+      } else {
+        toast.error("Notification permission denied. Please enable it in your browser settings.");
+      }
+    } else {
+      toast.info("To disable notifications, please update your browser settings.");
     }
   };
 
@@ -85,34 +157,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const subscribeToOrders = () => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel("student-orders")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "orders",
-          filter: `student_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log("Order updated:", payload);
-          fetchOrders();
-          if (payload.new.status === "ready") {
-            toast.success("Your order is ready for pickup! ✅");
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
-
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -129,10 +173,28 @@ const StudentDashboard = () => {
             <UtensilsCrossed className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">CanteenGo</h1>
           </div>
-          <Button variant="outline" onClick={signOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant={notificationsEnabled ? "default" : "outline"}
+              size="sm"
+              onClick={handleNotificationToggle}
+              title={notificationsEnabled ? "Notifications enabled" : "Enable notifications"}
+            >
+              {notificationsEnabled ? (
+                <Bell className="h-4 w-4" />
+              ) : (
+                <BellOff className="h-4 w-4" />
+              )}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/student/orders")}>
+              <History className="h-4 w-4 mr-2" />
+              Orders
+            </Button>
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
