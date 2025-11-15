@@ -10,6 +10,7 @@ import CanteenMenu from "./pages/CanteenMenu";
 import OrderHistory from "./pages/OrderHistory";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorRegistration from "./pages/VendorRegistration";
+import MenuManagement from "./pages/MenuManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,8 +27,9 @@ const App = () => (
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/canteen/:id" element={<CanteenMenu />} />
           <Route path="/student/orders" element={<OrderHistory />} />
-          <Route path="/vendor" element={<VendorDashboard />} />
-          <Route path="/vendor/register" element={<VendorRegistration />} />
+        <Route path="/vendor" element={<VendorDashboard />} />
+        <Route path="/vendor/register" element={<VendorRegistration />} />
+        <Route path="/vendor/menu" element={<MenuManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
