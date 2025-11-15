@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UtensilsCrossed, LogOut, CheckCircle2, Clock, Plus } from "lucide-react";
+import { UtensilsCrossed, LogOut, CheckCircle2, Clock, Plus, Package } from "lucide-react";
 import { toast } from "sonner";
 
 type Order = {
@@ -164,8 +164,25 @@ const VendorDashboard = () => {
     }
   };
 
+  const markOrderCompleted = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "completed" })
+        .eq("id", orderId);
+
+      if (error) throw error;
+      toast.success("Order marked as completed!");
+      fetchCanteenAndOrders();
+    } catch (error) {
+      console.error("Error updating order:", error);
+      toast.error("Failed to complete order");
+    }
+  };
+
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const readyOrders = orders.filter((o) => o.status === "ready");
+  const completedOrders = orders.filter((o) => o.status === "completed");
 
   if (loading || authLoading) {
     return (
@@ -224,6 +241,10 @@ const VendorDashboard = () => {
             <TabsTrigger value="ready">
               <CheckCircle2 className="h-4 w-4 mr-2" />
               Ready ({readyOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              <Package className="h-4 w-4 mr-2" />
+              Completed ({completedOrders.length})
             </TabsTrigger>
           </TabsList>
 
@@ -294,6 +315,51 @@ const VendorDashboard = () => {
                         <Badge className="bg-success text-white">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Ready
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {order.order_items.map((item, idx) => (
+                        <div key={idx} className="text-sm">
+                          {item.quantity}x {item.menu_items.name}
+                        </div>
+                      ))}
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.created_at).toLocaleString()}
+                      </p>
+                      <Button
+                        className="w-full mt-2"
+                        onClick={() => markOrderCompleted(order.id)}
+                      >
+                        Mark as Completed
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="completed">
+            {completedOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No completed orders
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {completedOrders.map((order) => (
+                  <Card key={order.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{order.profiles.name}</CardTitle>
+                          <CardDescription>₹{order.total_amount.toFixed(2)}</CardDescription>
+                        </div>
+                        <Badge className="bg-success text-white">
+                          <Package className="h-3 w-3 mr-1" />
+                          Completed
                         </Badge>
                       </div>
                     </CardHeader>
