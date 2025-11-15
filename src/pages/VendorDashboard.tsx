@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UtensilsCrossed, LogOut, CheckCircle2, Clock } from "lucide-react";
+import { UtensilsCrossed, LogOut, CheckCircle2, Clock, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 type Order = {
@@ -201,10 +201,16 @@ const VendorDashboard = () => {
             </div>
             <p className="text-sm text-muted-foreground">{canteen.location}</p>
           </div>
-          <Button variant="outline" onClick={signOut}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/vendor/menu")}>
+              <Plus className="h-4 w-4 mr-2" />
+              Manage Menu
+            </Button>
+            <Button variant="outline" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
