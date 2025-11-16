@@ -30,6 +30,7 @@ const VendorDashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [canteen, setCanteen] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const justRegistered = location.state?.justRegistered;
@@ -149,34 +150,50 @@ const VendorDashboard = () => {
   };
 
   const markOrderReady = async (orderId: string) => {
+    if (updatingOrderId) return;
+    
+    setUpdatingOrderId(orderId);
     try {
       const { error } = await supabase
         .from("orders")
         .update({ status: "ready" })
         .eq("id", orderId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
       toast.success("Order marked as ready!");
-      fetchCanteenAndOrders();
-    } catch (error) {
+      await fetchCanteenAndOrders();
+    } catch (error: any) {
       console.error("Error updating order:", error);
-      toast.error("Failed to update order");
+      toast.error(error.message || "Failed to update order");
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
   const markOrderCompleted = async (orderId: string) => {
+    if (updatingOrderId) return;
+    
+    setUpdatingOrderId(orderId);
     try {
       const { error } = await supabase
         .from("orders")
         .update({ status: "completed" })
         .eq("id", orderId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
       toast.success("Order marked as completed!");
-      fetchCanteenAndOrders();
-    } catch (error) {
-      console.error("Error updating order:", error);
-      toast.error("Failed to complete order");
+      await fetchCanteenAndOrders();
+    } catch (error: any) {
+      console.error("Error completing order:", error);
+      toast.error(error.message || "Failed to complete order");
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
@@ -285,8 +302,9 @@ const VendorDashboard = () => {
                       <Button
                         className="w-full"
                         onClick={() => markOrderReady(order.id)}
+                        disabled={updatingOrderId === order.id}
                       >
-                        Mark as Ready
+                        {updatingOrderId === order.id ? "Updating..." : "Mark as Ready"}
                       </Button>
                     </CardContent>
                   </Card>
@@ -330,8 +348,9 @@ const VendorDashboard = () => {
                       <Button
                         className="w-full mt-2"
                         onClick={() => markOrderCompleted(order.id)}
+                        disabled={updatingOrderId === order.id}
                       >
-                        Mark as Completed
+                        {updatingOrderId === order.id ? "Completing..." : "Mark as Completed"}
                       </Button>
                     </CardContent>
                   </Card>
