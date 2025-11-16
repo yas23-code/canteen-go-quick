@@ -111,12 +111,28 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      // Clear local state even if session doesn't exist
       setUserRole(null);
+      setSession(null);
+      setUser(null);
+      
+      // If error is session_not_found, treat as successful logout
+      if (error && error.message !== "Session from session_id claim in JWT does not exist") {
+        throw error;
+      }
+      
       toast.success("Signed out successfully!");
       navigate("/");
     } catch (error: any) {
       console.error("Sign out error:", error);
+      
+      // Clear state and navigate even on error
+      setUserRole(null);
+      setSession(null);
+      setUser(null);
+      navigate("/");
+      
       toast.error(error.message || "Failed to sign out");
     }
   };
