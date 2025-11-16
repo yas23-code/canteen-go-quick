@@ -115,14 +115,19 @@ export const useAuth = () => {
     setUser(null);
     
     try {
-      await supabase.auth.signOut();
-      toast.success("Signed out successfully!");
-    } catch (error: any) {
-      // Silently handle session not found errors as they mean user is already signed out
-      if (!error.message?.includes("session") && !error.message?.includes("Session")) {
+      const { error } = await supabase.auth.signOut();
+      
+      // Ignore session errors - user is already signed out
+      if (error && error.message && 
+          !error.message.toLowerCase().includes('session')) {
         console.error("Sign out error:", error);
         toast.error("Failed to sign out");
+      } else {
+        toast.success("Signed out successfully!");
       }
+    } catch (error: any) {
+      // Silently handle all errors during sign out
+      console.log("Sign out completed with error:", error);
     } finally {
       navigate("/");
     }
