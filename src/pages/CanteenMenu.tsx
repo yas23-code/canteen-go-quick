@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Plus, Minus, Trash2, QrCode } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type MenuItem = {
   id: string;
@@ -28,6 +29,8 @@ const CanteenMenu = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
+  const [pickupCode, setPickupCode] = useState<string | null>(null);
+  const [showPickupDialog, setShowPickupDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -124,9 +127,11 @@ const CanteenMenu = () => {
 
       if (itemsError) throw itemsError;
 
+      // Show pickup code dialog
+      setPickupCode(orderData.pickup_code);
+      setShowPickupDialog(true);
       toast.success("Order placed successfully!");
       setCart([]);
-      navigate("/student");
     } catch (error: any) {
       console.error("Error placing order:", error);
       toast.error(error.message || "Failed to place order");
@@ -258,6 +263,38 @@ const CanteenMenu = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={showPickupDialog} onOpenChange={(open) => {
+        setShowPickupDialog(open);
+        if (!open) navigate("/student");
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              Order Placed Successfully!
+            </DialogTitle>
+            <DialogDescription>
+              Save your pickup code to collect your order
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 py-4">
+            <div className="text-sm text-muted-foreground">Your Pickup Code:</div>
+            <div className="text-6xl font-bold tracking-wider text-primary">
+              {pickupCode}
+            </div>
+            <div className="text-sm text-muted-foreground text-center">
+              Show this code to the vendor when collecting your order
+            </div>
+          </div>
+          <Button onClick={() => {
+            setShowPickupDialog(false);
+            navigate("/student");
+          }}>
+            Got it!
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -17,6 +17,7 @@ type Order = {
   status: string;
   total_amount: number;
   created_at: string;
+  pickup_code: string;
   canteens: {
     name: string;
     location: string;
