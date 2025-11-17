@@ -126,6 +126,7 @@ export type Database = {
           canteen_id: string
           created_at: string
           id: string
+          pickup_code: string | null
           status: string
           student_id: string
           total_amount: number
@@ -134,6 +135,7 @@ export type Database = {
           canteen_id: string
           created_at?: string
           id?: string
+          pickup_code?: string | null
           status?: string
           student_id: string
           total_amount: number
@@ -142,6 +144,7 @@ export type Database = {
           canteen_id?: string
           created_at?: string
           id?: string
+          pickup_code?: string | null
           status?: string
           student_id?: string
           total_amount?: number
@@ -203,6 +206,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_pickup_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
