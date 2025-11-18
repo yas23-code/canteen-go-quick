@@ -262,6 +262,15 @@ const OrderHistory = () => {
                           ))}
                         </ul>
                       </div>
+
+                      {(order.status === "pending" || order.status === "ready") && order.pickup_code && (
+                        <div className="mt-3 bg-primary/10 rounded-lg p-3 text-center">
+                          <p className="text-xs text-muted-foreground mb-1">Pickup Code</p>
+                          <p className="text-2xl font-bold font-mono text-primary">
+                            {order.pickup_code}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex flex-col items-end gap-2">
