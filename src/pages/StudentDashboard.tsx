@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { UtensilsCrossed, MapPin, LogOut, ShoppingBag, Clock, CheckCircle2, Bell, BellOff, History } from "lucide-react";
+import { UtensilsCrossed, MapPin, LogOut, Bell, BellOff, History } from "lucide-react";
 import { toast } from "sonner";
 import { requestNotificationPermission, showOrderReadyNotification } from "@/utils/notifications";
 
@@ -200,61 +198,6 @@ const StudentDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Orders Section */}
-        {orders.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <ShoppingBag className="h-6 w-6 text-primary" />
-                Your Orders
-              </h2>
-              <Button variant="outline" onClick={() => navigate("/student/orders")}>
-                View All Orders
-              </Button>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {orders.map((order) => (
-                <Card key={order.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{order.canteens.name}</CardTitle>
-                        <CardDescription>₹{order.total_amount.toFixed(2)}</CardDescription>
-                      </div>
-                      {order.status === "ready" ? (
-                        <Badge className="bg-success text-white">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Ready
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {(order.status === "pending" || order.status === "ready") && order.pickup_code && (
-                      <div className="bg-primary/10 rounded-lg p-3 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Pickup Code</p>
-                        <p className="text-2xl font-bold font-mono text-primary">
-                          {order.pickup_code}
-                        </p>
-                      </div>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleString()}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <Separator />
-
         {/* Canteens Section */}
         <section>
           <h2 className="text-2xl font-bold mb-4">Available Canteens</h2>
