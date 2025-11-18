@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UtensilsCrossed, LogOut, CheckCircle2, Clock, Plus, Package } from "lucide-react";
+import { UtensilsCrossed, LogOut, CheckCircle2, Clock, Plus, Package, Search } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 type Order = {
   id: string;
@@ -32,6 +33,7 @@ const VendorDashboard = () => {
   const [canteen, setCanteen] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const justRegistered = location.state?.justRegistered;
@@ -198,9 +200,16 @@ const VendorDashboard = () => {
     }
   };
 
-  const pendingOrders = orders.filter((o) => o.status === "pending");
-  const readyOrders = orders.filter((o) => o.status === "ready");
-  const completedOrders = orders.filter((o) => o.status === "completed");
+  const filterOrdersBySearch = (ordersList: Order[]) => {
+    if (!searchTerm) return ordersList;
+    return ordersList.filter((order) => 
+      order.pickup_code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const pendingOrders = filterOrdersBySearch(orders.filter((o) => o.status === "pending"));
+  const readyOrders = filterOrdersBySearch(orders.filter((o) => o.status === "ready"));
+  const completedOrders = filterOrdersBySearch(orders.filter((o) => o.status === "completed"));
 
   if (loading || authLoading) {
     return (
@@ -250,6 +259,19 @@ const VendorDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by pickup code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
         <Tabs defaultValue="pending" className="space-y-6">
           <TabsList>
             <TabsTrigger value="pending">
