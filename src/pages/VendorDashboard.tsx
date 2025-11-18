@@ -203,7 +203,7 @@ const VendorDashboard = () => {
   const filterOrdersBySearch = (ordersList: Order[]) => {
     if (!searchTerm) return ordersList;
     return ordersList.filter((order) => 
-      order.pickup_code.toLowerCase().includes(searchTerm.toLowerCase())
+      order.pickup_code?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
 
