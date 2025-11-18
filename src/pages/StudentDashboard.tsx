@@ -234,7 +234,15 @@ const StudentDashboard = () => {
                       )}
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-2">
+                    {(order.status === "pending" || order.status === "ready") && order.pickup_code && (
+                      <div className="bg-primary/10 rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground mb-1">Pickup Code</p>
+                        <p className="text-2xl font-bold font-mono text-primary">
+                          {order.pickup_code}
+                        </p>
+                      </div>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {new Date(order.created_at).toLocaleString()}
                     </p>

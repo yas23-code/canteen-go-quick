@@ -14,6 +14,7 @@ type Order = {
   status: string;
   total_amount: number;
   created_at: string;
+  pickup_code: string;
   profiles: {
     name: string;
   };
@@ -279,7 +280,10 @@ const VendorDashboard = () => {
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">{order.profiles.name}</CardTitle>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            {order.profiles.name}
+                            <span className="text-sm font-mono text-primary">#{order.pickup_code}</span>
+                          </CardTitle>
                           <CardDescription>₹{order.total_amount.toFixed(2)}</CardDescription>
                         </div>
                         <Badge variant="secondary">
@@ -327,7 +331,10 @@ const VendorDashboard = () => {
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg">{order.profiles.name}</CardTitle>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            {order.profiles.name}
+                            <span className="text-sm font-mono text-primary">#{order.pickup_code}</span>
+                          </CardTitle>
                           <CardDescription>₹{order.total_amount.toFixed(2)}</CardDescription>
                         </div>
                         <Badge className="bg-success text-white">
